@@ -97,12 +97,12 @@ order by 1;
  */
 with tab2 as (
 /* вспомогательный запрос,
- * возвращающий дату в формате год-месяц, id покупателя, дату, доход
- */
+    * возвращающий дату в формате год-месяц, id покупателя, дату, доход
+    */
     select
-        to_char(s.sale_date, 'YYYY-MM') as selling_month,
         c.customer_id,
         date_trunc('month', s.sale_date)::date as order_month,
+        to_char(s.sale_date, 'YYYY-MM') as selling_month,
         sum(s.quantity * p.price) as income
     from sales as s
     inner join customers as c on s.customer_id = c.customer_id
@@ -118,7 +118,7 @@ select
     count(customer_id) as total_customers,
     trunc(sum(income)) as income
 from tab2
-group by 1, order_month
+group by selling_month, order_month
 order by order_month;
 
 
@@ -127,8 +127,8 @@ order by order_month;
  */
 with tab as (
 /* этот запрос возвращает id покупателя, полное имя покупателя,
- * дату первой покупки, сумму первой покупки, полное имя продавца
- */
+    * дату первой покупки, сумму первой покупки, полное имя продавца
+    */
     select
         c.customer_id,
         s.sale_date,
@@ -136,7 +136,7 @@ with tab as (
         c.first_name || ' ' || c.last_name as customer,
         row_number()
             over (partition by s.customer_id order by s.sale_date)
-            as rn,
+        as rn,
         e.first_name || ' ' || e.last_name as seller
     from customers as c
     inner join sales as s on c.customer_id = s.customer_id
