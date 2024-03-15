@@ -95,31 +95,16 @@ order by 1;
 /* 6.2 этот запрос возвращает количество покупателей и суммарную выручку,
  * которую они принесли по месяца
  */
-with tab2 as (
-/* вспомогательный запрос,
-    * возвращающий дату в формате год-месяц, id покупателя, дату, доход
-    */
-    select
-        c.customer_id,
-        date_trunc('month', s.sale_date)::date as order_month,
-        to_char(s.sale_date, 'YYYY-MM') as selling_month,
-        sum(s.quantity * p.price) as income
-    from sales as s
-    inner join customers as c on s.customer_id = c.customer_id
-    inner join products as p on s.product_id = p.product_id
-    group by 1, 2, 3
-)
-
-/* основной запрос, возвращающий дату в формате год-месяц,
- * количество покупателей и доход за этот месяц
- */
 select
-    selling_month,
-    count(customer_id) as total_customers,
-    trunc(sum(income)) as income
-from tab2
-group by selling_month, order_month
-order by order_month;
+    to_char(s.sale_date, 'YYYY-MM') as selling_month,
+    count(distinct c.customer_id) as total_customers,
+    trunc(sum(p.price * s.quantity)) as income
+from customers as c
+inner join sales as s on c.customer_id = s.customer_id
+inner join products as p on s.product_id = p.product_id
+group by 1
+order by 1 asc;
+
 
 
 /* 6.3 этот запрос возвращает информацию о покупателях,
