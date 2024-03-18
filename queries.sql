@@ -91,7 +91,6 @@ from age_cat
 group by 1
 order by 1;
 
-
 /* 6.2 этот запрос возвращает количество покупателей и суммарную выручку,
  * которую они принесли по месяца
  */
@@ -127,15 +126,24 @@ with tab as (
     inner join sales as s on c.customer_id = s.customer_id
     inner join employees as e on s.sales_person_id = e.employee_id
     inner join products as p on s.product_id = p.product_id
-)
+),
 
 /* этот запрос возвращает полное имя покупателя, дату первой покупки,
  * сумму первой покупки, полное имя продавца
  */
+tab2 as (
+    select
+        customer_id,
+        customer,
+        sale_date,
+        seller
+    from tab
+    where price = 0 and rn = 1
+    order by 1
+)
+
 select
     customer,
     sale_date,
     seller
-from tab
-where price = 0 and rn = 1
-order by customer_id;
+from tab2;
